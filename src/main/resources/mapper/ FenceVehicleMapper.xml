@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fence.mapper.FenceVehicleMapper">
+
+    <insert id="insert">
+        INSERT INTO fence_vehicle (fence_id, vehicle_id)
+        VALUES (#{fenceId}, #{vehicleId})
+    </insert>
+
+    <delete id="deleteByFenceId">
+        DELETE FROM fence_vehicle WHERE fence_id = #{fenceId}
+    </delete>
+
+    <select id="selectVehicleIdsByFenceId" resultType="java.lang.Long">
+        SELECT vehicle_id FROM fence_vehicle WHERE fence_id = #{fenceId}
+    </select>
+
+</mapper>

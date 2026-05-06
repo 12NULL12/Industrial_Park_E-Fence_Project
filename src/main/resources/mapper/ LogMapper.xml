@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fence.mapper.LogMapper">
+
+    <resultMap id="BaseResultMap" type="com.fence.entity.OperationLog">
+        <id column="id" property="id"/>
+        <result column="log_type" property="logType"/>
+        <result column="module" property="module"/>
+        <result column="operation" property="operation"/>
+        <result column="operator_id" property="operatorId"/>
+        <result column="operator_name" property="operatorName"/>
+        <result column="request_method" property="requestMethod"/>
+        <result column="request_url" property="requestUrl"/>
+        <result column="request_params" property="requestParams"/>
+        <result column="ip_address" property="ipAddress"/>
+        <result column="user_agent" property="userAgent"/>
+        <result column="response_status" property="responseStatus"/>
+        <result column="error_msg" property="errorMsg"/>
+        <result column="execute_time" property="executeTime"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO operation_log (
+            log_type, module, operation,
+            operator_id, operator_name,
+            request_method, request_url, request_params,
+            ip_address, user_agent,
+            response_status, error_msg, execute_time,
+            create_time
+        ) VALUES (
+                     #{logType}, #{module}, #{operation},
+                     #{operatorId}, #{operatorName},
+                     #{requestMethod}, #{requestUrl}, #{requestParams},
+                     #{ipAddress}, #{userAgent},
+                     #{responseStatus}, #{errorMsg}, #{executeTime},
+                     NOW()
+                 )
+    </insert>
+
+    <delete id="deleteById">
+        DELETE FROM operation_log WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteOldLogs">
+        DELETE FROM operation_log
+        WHERE create_time &lt; DATE_SUB(NOW(), INTERVAL #{days} DAY)
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM operation_log WHERE id = #{id}
+    </select>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT * FROM operation_log
+        <where>
+            <if test="logType != null and logType != ''">
+                AND log_type = #{logType}
+            </if>
+            <if test="module != null and module != ''">
+                AND module = #{module}
+            </if>
+            <if test="operatorId != null">
+                AND operator_id = #{operatorId}
+            </if>
+            <if test="operatorName != null and operatorName != ''">
+                AND operator_name LIKE CONCAT('%', #{operatorName}, '%')
+            </if>
+            <if test="startTime != null">
+                AND create_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND create_time &lt;= #{endTime}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM operation_log
+        <where>
+            <if test="logType != null and logType != ''">
+                AND log_type = #{logType}
+            </if>
+            <if test="module != null and module != ''">
+                AND module = #{module}
+            </if>
+            <if test="operatorId != null">
+                AND operator_id = #{operatorId}
+            </if>
+            <if test="startTime != null">
+                AND create_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND create_time &lt;= #{endTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="countByType" resultType="int">
+        SELECT COUNT(*) FROM operation_log
+        WHERE log_type = #{logType}
+    </select>
+
+</mapper>

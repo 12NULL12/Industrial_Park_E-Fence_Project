@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fence.mapper.FenceMapper">
+
+    <!-- Fence 主表 ResultMap -->
+    <resultMap id="FenceResultMap" type="com.fence.entity.Fence">
+        <id column="id" property="id"/>
+        <result column="fence_name" property="fenceName"/>
+        <result column="description" property="description"/>
+        <result column="alarm_level" property="alarmLevel"/>
+        <result column="enabled" property="enabled"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- FenceVertex 顶点 ResultMap -->
+    <resultMap id="VertexResultMap" type="com.fence.entity.FenceVertex">
+        <id column="id" property="id"/>
+        <result column="fence_id" property="fenceId"/>
+        <result column="longitude" property="longitude"/>
+        <result column="latitude" property="latitude"/>
+        <result column="vertex_order" property="vertexOrder"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- FenceVehicle 关联 ResultMap -->
+    <resultMap id="FenceVehicleResultMap" type="com.fence.entity.FenceVehicle">
+        <id column="id" property="id"/>
+        <result column="fence_id" property="fenceId"/>
+        <result column="vehicle_id" property="vehicleId"/>
+        <result column="bind_time" property="bindTime"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- ==================== Fence 主表操作 ==================== -->
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO fence (
+            fence_name, fence_type, description, alarm_level, enabled,
+            create_time, update_time
+        ) VALUES (
+                     #{fenceName}, #{fenceType}, #{description}, #{alarmLevel}, #{enabled},
+                     NOW(), NOW()
+                 )
+    </insert>
+
+    <update id="update">
+        UPDATE fence
+        <set>
+            <if test="fenceName != null">fence_name = #{fenceName},</if>
+            <if test="fenceType != null">fence_type = #{fenceType},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="alarmLevel != null">alarm_level = #{alarmLevel},</if>
+            <if test="enabled != null">enabled = #{enabled},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM fence WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="FenceResultMap">
+        SELECT * FROM fence WHERE id = #{id}
+    </select>
+
+    <select id="selectList" resultMap="FenceResultMap">
+        SELECT * FROM fence
+        <where>
+            <if test="fenceType != null and fenceType != ''">
+                AND fence_type = #{fenceType}
+            </if>
+            <if test="enabled != null">
+                AND enabled = #{enabled}
+            </if>
+            <if test="fenceName != null and fenceName != ''">
+                AND fence_name LIKE CONCAT('%', #{fenceName}, '%')
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM fence
+        <where>
+            <if test="fenceType != null and fenceType != ''">
+                AND fence_type = #{fenceType}
+            </if>
+            <if test="enabled != null">
+                AND enabled = #{enabled}
+            </if>
+        </where>
+    </select>
+
+    <!-- ==================== FenceVertex 顶点操作 ==================== -->
+
+    <insert id="insertVertex" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO fence_vertex (
+            fence_id, longitude, latitude, vertex_order, create_time
+        ) VALUES (
+                     #{fenceId}, #{longitude}, #{latitude}, #{vertexOrder}, NOW()
+                 )
+    </insert>
+
+    <insert id="batchInsertVertices">
+        INSERT INTO fence_vertex (
+        fence_id, longitude, latitude, vertex_order, create_time
+        ) VALUES
+        <foreach collection="vertices" item="vertex" separator=",">
+            (
+            #{vertex.fenceId}, #{vertex.longitude}, #{vertex.latitude},
+            #{vertex.vertexOrder}, NOW()
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectVerticesByFenceId" resultMap="VertexResultMap">
+        SELECT * FROM fence_vertex
+        WHERE fence_id = #{fenceId}
+        ORDER BY vertex_order ASC
+    </select>
+
+    <delete id="deleteVerticesByFenceId">
+        DELETE FROM fence_vertex WHERE fence_id = #{fenceId}
+    </delete>
+
+    <!-- ==================== FenceVehicle 关联操作 ==================== -->
+
+    <insert id="bindVehicle">
+        INSERT INTO fence_vehicle (
+            fence_id, vehicle_id, bind_time, create_time
+        ) VALUES (
+                     #{fenceId}, #{vehicleId}, NOW(), NOW()
+                 )
+    </insert>
+
+    <delete id="unbindVehicle">
+        DELETE FROM fence_vehicle
+        WHERE fence_id = #{fenceId} AND vehicle_id = #{vehicleId}
+    </delete>
+
+    <select id="selectVehicleIdsByFenceId" resultType="long">
+        SELECT vehicle_id FROM fence_vehicle WHERE fence_id = #{fenceId}
+    </select>
+
+    <select id="selectFenceIdsByVehicleId" resultType="long">
+        SELECT fence_id FROM fence_vehicle WHERE vehicle_id = #{vehicleId}
+    </select>
+
+    <!-- 根据司机ID查询其绑定的车辆ID列表 -->
+    <select id="selectVehicleIdsByDriverId" resultType="long">
+        SELECT id FROM vehicle WHERE driver_id = #{driverId}
+    </select>
+
+    <delete id="deleteBindingsByFenceId">
+        DELETE FROM fence_vehicle WHERE fence_id = #{fenceId}
+    </delete>
+
+</mapper>

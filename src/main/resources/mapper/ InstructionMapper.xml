@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fence.mapper.InstructionMapper">
+
+    <resultMap id="BaseResultMap" type="com.fence.entity.Instruction">
+        <id column="id" property="id"/>
+        <result column="instruction_no" property="instructionNo"/>
+        <result column="task_id" property="taskId"/>
+        <result column="task_no" property="taskNo"/>
+        <result column="vehicle_id" property="vehicleId"/>
+        <result column="vehicle_plate" property="vehiclePlate"/>
+        <result column="device_id" property="deviceId"/>
+        <result column="command_id" property="commandId"/>
+        <result column="instruction_type" property="instructionType"/>
+        <result column="instruction_content" property="instructionContent"/>
+        <result column="status" property="status"/>
+        <result column="send_time" property="sendTime"/>
+        <result column="receive_time" property="receiveTime"/>
+        <result column="execute_time" property="executeTime"/>
+        <result column="complete_time" property="completeTime"/>
+        <result column="feedback" property="feedback"/>
+        <result column="fail_reason" property="failReason"/>
+        <result column="operator_id" property="operatorId"/>
+        <result column="operator_name" property="operatorName"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO instruction (
+            instruction_no, task_id, task_no, vehicle_id, vehicle_plate, device_id,
+            command_id, instruction_type, instruction_content, status,
+            operator_id, operator_name,
+            create_time, update_time
+        ) VALUES (
+                     #{instructionNo}, #{taskId}, #{taskNo}, #{vehicleId}, #{vehiclePlate}, #{deviceId},
+                     #{commandId}, #{instructionType}, #{instructionContent}, 'PENDING',
+                     #{operatorId}, #{operatorName},
+                     NOW(), NOW()
+                 )
+    </insert>
+
+    <update id="update">
+        UPDATE instruction
+        <set>
+            <if test="instructionContent != null">instruction_content = #{instructionContent},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="feedback != null">feedback = #{feedback},</if>
+            <if test="failReason != null">fail_reason = #{failReason},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE instruction
+        SET status = #{status},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateCommandId">
+        UPDATE instruction
+        SET command_id = #{commandId},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateSent">
+        UPDATE instruction
+        SET status = 'SENT',
+            send_time = NOW(),
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateReceived">
+        UPDATE instruction
+        SET status = 'RECEIVED',
+            receive_time = NOW(),
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateExecuting">
+        UPDATE instruction
+        SET status = 'EXECUTING',
+            execute_time = NOW(),
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateCompleted">
+        UPDATE instruction
+        SET status = 'COMPLETED',
+            complete_time = NOW(),
+            feedback = #{feedback},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateFailed">
+        UPDATE instruction
+        SET status = 'FAILED',
+            fail_reason = #{failReason},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM instruction WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM instruction WHERE id = #{id}
+    </select>
+
+    <select id="selectByInstructionNo" resultMap="BaseResultMap">
+        SELECT * FROM instruction WHERE instruction_no = #{instructionNo}
+    </select>
+
+    <select id="selectByCommandId" resultMap="BaseResultMap">
+        SELECT * FROM instruction WHERE command_id = #{commandId}
+            LIMIT 1
+    </select>
+
+
+    <select id="selectLatestByVehicleAndType" resultMap="BaseResultMap">
+        SELECT * FROM instruction
+        WHERE vehicle_id = #{vehicleId}
+          AND instruction_type = #{instructionType}
+        ORDER BY create_time DESC
+            LIMIT 1
+    </select>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT * FROM instruction
+        <where>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="instructionType != null and instructionType != ''">
+                AND instruction_type = #{instructionType}
+            </if>
+            <if test="taskId != null">
+                AND task_id = #{taskId}
+            </if>
+            <if test="vehicleId != null">
+                AND vehicle_id = #{vehicleId}
+            </if>
+            <if test="startTime != null">
+                AND create_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND create_time &lt;= #{endTime}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM instruction
+        <where>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectPendingInstructions" resultMap="BaseResultMap">
+        SELECT * FROM instruction
+        WHERE status = 'PENDING'
+        ORDER BY create_time ASC
+    </select>
+
+    <select id="selectByTaskId" resultMap="BaseResultMap">
+        SELECT * FROM instruction WHERE task_id = #{taskId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByVehicleId" resultMap="BaseResultMap">
+        SELECT * FROM instruction WHERE vehicle_id = #{vehicleId}
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

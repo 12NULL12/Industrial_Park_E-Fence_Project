@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fence.mapper.CargoMapper">
+
+    <resultMap id="BaseResultMap" type="com.fence.entity.Cargo">
+        <id column="id" property="id"/>
+        <result column="cargo_name" property="cargoName"/>
+        <result column="cargo_code" property="cargoCode"/>
+        <result column="cargo_type" property="cargoType"/>
+        <result column="weight" property="weight"/>
+        <result column="unit" property="unit"/>
+        <result column="quantity" property="quantity"/>
+        <result column="status" property="status"/>
+        <result column="source_warehouse_id" property="sourceWarehouseId"/>
+        <result column="dest_warehouse_id" property="destWarehouseId"/>
+        <result column="task_id" property="taskId"/>
+        <result column="bind_vehicle_id" property="bindVehicleId"/>
+        <result column="bind_driver_id" property="bindDriverId"/>
+        <result column="bind_time" property="bindTime"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, cargo_name, cargo_code, cargo_type, weight, unit, quantity, status,
+        source_warehouse_id, dest_warehouse_id, task_id, bind_vehicle_id, bind_driver_id, bind_time,
+        created_at, updated_at
+    </sql>
+
+    <select id="selectAllWithWarehouse" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM cargo
+        ORDER BY id ASC
+    </select>
+
+    <select id="selectByIdWithWarehouse" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM cargo
+        WHERE id = #{id}
+        LIMIT 1
+    </select>
+
+    <select id="selectByCargoCode" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM cargo
+        WHERE cargo_code = #{cargoCode}
+        LIMIT 1
+    </select>
+
+</mapper>

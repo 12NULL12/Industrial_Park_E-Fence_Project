@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fence.mapper.TaskMapper">
+
+    <!-- Task 主表 ResultMap -->
+    <resultMap id="TaskResultMap" type="com.fence.entity.Task">
+        <id column="id" property="id"/>
+        <result column="task_no" property="taskNo"/>
+        <result column="task_name" property="taskName"/>
+        <result column="vehicle_id" property="vehicleId"/>
+        <result column="vehicle_plate" property="vehiclePlate"/>
+        <result column="driver_id" property="driverId"/>
+        <result column="driver_name" property="driverName"/>
+        <result column="start_warehouse_id" property="startWarehouseId"/>
+        <result column="start_warehouse_name" property="startWarehouseName"/>
+        <result column="end_warehouse_id" property="endWarehouseId"/>
+        <result column="end_warehouse_name" property="endWarehouseName"/>
+        <result column="status" property="status"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="actual_start_time" property="actualStartTime"/>
+        <result column="actual_end_time" property="actualEndTime"/>
+        <result column="remark" property="remark"/>
+        <result column="priority" property="priority"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- TaskCargo 货物关联 ResultMap -->
+    <resultMap id="TaskCargoResultMap" type="com.fence.entity.TaskCargo">
+        <id column="id" property="id"/>
+        <result column="task_id" property="taskId"/>
+        <result column="cargo_id" property="cargoId"/>
+        <result column="cargo_name" property="cargoName"/>
+        <result column="weight" property="weight"/>
+        <result column="volume" property="volume"/>
+        <result column="quantity" property="quantity"/>
+        <result column="unit" property="unit"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- ==================== Task 主表操作 ==================== -->
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO task (
+            task_no, task_name, vehicle_id, vehicle_plate, driver_id, driver_name,
+            start_warehouse_id, start_warehouse_name,
+            end_warehouse_id, end_warehouse_name,
+            status, start_time, end_time, remark, priority,
+            create_time, update_time
+        ) VALUES (
+                     #{taskNo}, #{taskName}, #{vehicleId}, #{vehiclePlate}, #{driverId}, #{driverName},
+                     #{startWarehouseId}, #{startWarehouseName},
+                     #{endWarehouseId}, #{endWarehouseName},
+                     #{status}, #{startTime}, #{endTime}, #{remark}, #{priority},
+                     NOW(), NOW()
+                 )
+    </insert>
+
+    <update id="update">
+        UPDATE task
+        <set>
+            <if test="taskName != null">task_name = #{taskName},</if>
+            <if test="startWarehouseId != null">start_warehouse_id = #{startWarehouseId},</if>
+            <if test="startWarehouseName != null">start_warehouse_name = #{startWarehouseName},</if>
+            <if test="endWarehouseId != null">end_warehouse_id = #{endWarehouseId},</if>
+            <if test="endWarehouseName != null">end_warehouse_name = #{endWarehouseName},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE task
+        SET status = #{status},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateActualStartTime">
+        UPDATE task
+        SET actual_start_time = NOW(),
+            status = 'IN_PROGRESS',
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateActualEndTime">
+        UPDATE task
+        SET actual_end_time = NOW(),
+            status = 'COMPLETED',
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="assignVehicleAndDriver">
+        UPDATE task
+        SET vehicle_id = #{vehicleId},
+            vehicle_plate = #{vehiclePlate},
+            driver_id = #{driverId},
+            driver_name = #{driverName},
+            status = 'ASSIGNED',
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+    <update id="updateById">
+        UPDATE task
+        <set>
+            <if test="taskName != null">task_name = #{taskName},</if>
+            <if test="vehicleId != null">vehicle_id = #{vehicleId},</if>
+            <if test="vehiclePlate != null">vehicle_plate = #{vehiclePlate},</if>
+            <if test="driverId != null">driver_id = #{driverId},</if>
+            <if test="driverName != null">driver_name = #{driverName},</if>
+            <if test="startWarehouseId != null">start_warehouse_id = #{startWarehouseId},</if>
+            <if test="startWarehouseName != null">start_warehouse_name = #{startWarehouseName},</if>
+            <if test="endWarehouseId != null">end_warehouse_id = #{endWarehouseId},</if>
+            <if test="endWarehouseName != null">end_warehouse_name = #{endWarehouseName},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="actualStartTime != null">actual_start_time = #{actualStartTime},</if>
+            <if test="actualEndTime != null">actual_end_time = #{actualEndTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM task WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="TaskResultMap">
+        SELECT * FROM task WHERE id = #{id}
+    </select>
+
+    <select id="selectByTaskNo" resultMap="TaskResultMap">
+        SELECT * FROM task WHERE task_no = #{taskNo}
+    </select>
+
+    <select id="selectList" resultMap="TaskResultMap">
+        SELECT * FROM task
+        <where>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="vehicleId != null">
+                AND vehicle_id = #{vehicleId}
+            </if>
+            <if test="driverId != null">
+                AND driver_id = #{driverId}
+            </if>
+            <if test="taskName != null and taskName != ''">
+                AND task_name LIKE CONCAT('%', #{taskName}, '%')
+            </if>
+            <if test="startTime != null">
+                AND start_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND end_time &lt;= #{endTime}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM task
+        <where>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectTimeoutTasks" resultMap="TaskResultMap">
+        SELECT * FROM task
+        WHERE status IN ('ASSIGNED', 'IN_PROGRESS')
+          AND end_time &lt; NOW()
+    </select>
+
+    <!-- ==================== TaskCargo 货物关联操作 ==================== -->
+
+    <insert id="insertTaskCargo" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO task_cargo (
+            task_id, cargo_id, cargo_name, weight, volume, quantity, unit,
+            create_time
+        ) VALUES (
+                     #{taskId}, #{cargoId}, #{cargoName}, #{weight}, #{volume}, #{quantity}, #{unit},
+                     NOW()
+                 )
+    </insert>
+
+    <insert id="batchInsertTaskCargos">
+        INSERT INTO task_cargo (
+        task_id, cargo_id, cargo_name, weight, volume, quantity, unit,
+        create_time
+        ) VALUES
+        <foreach collection="cargos" item="cargo" separator=",">
+            (
+            #{cargo.taskId}, #{cargo.cargoId}, #{cargo.cargoName},
+            #{cargo.weight}, #{cargo.volume}, #{cargo.quantity}, #{cargo.unit},
+            NOW()
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectCargosByTaskId" resultMap="TaskCargoResultMap">
+        SELECT * FROM task_cargo WHERE task_id = #{taskId}
+    </select>
+    <select id="countByStatus" resultType="int">
+        SELECT COUNT(*) FROM task
+        <where>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="statisticsByStatus" resultType="map">
+        SELECT
+            SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) as pending,
+            SUM(CASE WHEN status = 'ASSIGNED' THEN 1 ELSE 0 END) as assigned,
+            SUM(CASE WHEN status = 'IN_PROGRESS' THEN 1 ELSE 0 END) as inProgress,
+            SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) as completed,
+            SUM(CASE WHEN status = 'CANCELLED' THEN 1 ELSE 0 END) as cancelled,
+            SUM(CASE WHEN status = 'TIMEOUT' THEN 1 ELSE 0 END) as timeout,
+            COUNT(*) as total
+        FROM task
+    </select>
+
+    <delete id="deleteCargosByTaskId">
+        DELETE FROM task_cargo WHERE task_id = #{taskId}
+    </delete>
+
+
+</mapper>

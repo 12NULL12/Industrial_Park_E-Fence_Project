@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fence.mapper.WarehouseMapper">
+
+    <resultMap id="BaseResultMap" type="com.fence.entity.Warehouse">
+        <id column="id" property="id"/>
+        <result column="warehouse_name" property="warehouseName"/>
+        <result column="address" property="address"/>
+        <result column="longitude" property="longitude"/>
+        <result column="latitude" property="latitude"/>
+        <result column="admin_id" property="adminId"/>
+    </resultMap>
+
+    <resultMap id="AdminResultMap" type="com.fence.entity.WarehouseAdmin">
+        <id column="id" property="id"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="admin_name" property="adminName"/>
+        <result column="admin_phone" property="adminPhone"/>
+        <result column="role" property="role"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, warehouse_name, address, longitude, latitude, admin_id
+    </sql>
+
+    <sql id="Admin_Column_List">
+        id, warehouse_id, admin_name, admin_phone, role, created_at, updated_at
+    </sql>
+
+    <select id="selectByWarehouseCode" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM warehouse
+        WHERE warehouse_code = #{warehouseCode}
+        LIMIT 1
+    </select>
+
+    <select id="selectByStatus" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM warehouse
+        WHERE status = #{status}
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="selectByManagerPhone" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM warehouse
+        WHERE manager_phone = #{managerPhone}
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="selectAllWithAdmin" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM warehouse
+        ORDER BY id ASC
+    </select>
+
+    <select id="selectAdminById" resultMap="AdminResultMap">
+        SELECT
+        <include refid="Admin_Column_List"/>
+        FROM warehouse_admin
+        WHERE id = #{id}
+        LIMIT 1
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO warehouse (warehouse_name, address, longitude, latitude, admin_id)
+        VALUES (#{warehouseName}, #{address}, #{longitude}, #{latitude}, #{adminId})
+    </insert>
+
+    <update id="updateById">
+        UPDATE warehouse
+        SET warehouse_name = #{et.warehouseName},
+            address = #{et.address},
+            longitude = #{et.longitude},
+            latitude = #{et.latitude},
+            admin_id = #{et.adminId}
+        WHERE id = #{et.id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM warehouse WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM warehouse
+        WHERE id = #{id}
+        LIMIT 1
+    </select>
+</mapper>

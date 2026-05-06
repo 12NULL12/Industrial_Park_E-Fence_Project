@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fence.mapper.DeviceMapper">
+
+    <resultMap id="BaseResultMap" type="com.fence.entity.Device">
+        <id column="id" property="id"/>
+        <result column="device_no" property="deviceNo"/>
+        <result column="device_type" property="deviceType"/>
+        <result column="manufacturer" property="manufacturer"/>
+        <result column="model" property="model"/>
+        <result column="firmware_version" property="firmwareVersion"/>
+        <result column="vehicle_id" property="vehicleId"/>
+        <result column="vehicle_plate" property="vehiclePlate"/>
+        <result column="status" property="status"/>
+        <result column="last_longitude" property="lastLongitude"/>
+        <result column="last_latitude" property="lastLatitude"/>
+        <result column="last_online_time" property="lastOnlineTime"/>
+        <result column="last_heartbeat_time" property="lastHeartbeatTime"/>
+        <result column="battery_level" property="batteryLevel"/>
+        <result column="sim_card_no" property="simCardNo"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO device (
+            device_no, device_type, manufacturer, model, firmware_version,
+            status, sim_card_no, remark,
+            create_time, update_time
+        ) VALUES (
+                     #{deviceNo}, #{deviceType}, #{manufacturer}, #{model}, #{firmwareVersion},
+                     'OFFLINE', #{simCardNo}, #{remark},
+                     NOW(), NOW()
+                 )
+    </insert>
+
+    <update id="update">
+        UPDATE device
+        <set>
+            <if test="deviceType != null">device_type = #{deviceType},</if>
+            <if test="manufacturer != null">manufacturer = #{manufacturer},</if>
+            <if test="model != null">model = #{model},</if>
+            <if test="firmwareVersion != null">firmware_version = #{firmwareVersion},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="simCardNo != null">sim_card_no = #{simCardNo},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE device
+        SET status = #{status},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateOnline">
+        UPDATE device
+        SET status = 'ONLINE',
+            last_longitude = #{longitude},
+            last_latitude = #{latitude},
+            last_online_time = NOW(),
+            last_heartbeat_time = NOW(),
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateOffline">
+        UPDATE device
+        SET status = 'OFFLINE',
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateHeartbeat">
+        UPDATE device
+        SET last_heartbeat_time = NOW(),
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateFault">
+        UPDATE device
+        SET status = 'FAULT',
+            remark = #{remark},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="bindVehicle">
+        UPDATE device
+        SET vehicle_id = #{vehicleId},
+            vehicle_plate = #{vehiclePlate},
+            update_time = NOW()
+        WHERE id = #{deviceId}
+    </update>
+
+    <update id="unbindVehicle">
+        UPDATE device
+        SET vehicle_id = NULL,
+            vehicle_plate = NULL,
+            update_time = NOW()
+        WHERE id = #{deviceId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM device WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM device WHERE id = #{id}
+    </select>
+
+    <select id="selectByDeviceNo" resultMap="BaseResultMap">
+        SELECT * FROM device WHERE device_no = #{deviceNo}
+    </select>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT * FROM device
+        <where>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="deviceType != null and deviceType != ''">
+                AND device_type = #{deviceType}
+            </if>
+            <if test="deviceNo != null and deviceNo != ''">
+                AND device_no LIKE CONCAT('%', #{deviceNo}, '%')
+            </if>
+            <if test="vehicleId != null">
+                AND vehicle_id = #{vehicleId}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM device
+        <where>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectOfflineDevices" resultMap="BaseResultMap">
+        SELECT * FROM device
+        WHERE status = 'OFFLINE'
+          AND last_heartbeat_time &lt; DATE_SUB(NOW(), INTERVAL 10 MINUTE)
+    </select>
+
+    <select id="selectFaultDevices" resultMap="BaseResultMap">
+        SELECT * FROM device WHERE status = 'FAULT'
+    </select>
+
+</mapper>

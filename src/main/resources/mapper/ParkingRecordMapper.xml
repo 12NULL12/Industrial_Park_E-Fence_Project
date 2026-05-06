@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fence.mapper.ParkingRecordMapper">
+
+    <resultMap id="BaseResultMap" type="com.fence.entity.ParkingRecord">
+        <id column="id" property="id"/>
+        <result column="plate_number" property="plateNumber"/>
+        <result column="vehicle_type" property="vehicleType"/>
+        <result column="action" property="action"/>
+        <result column="status" property="status"/>
+        <result column="alarm_id" property="alarmId"/>
+        <result column="enter_time" property="enterTime"/>
+        <result column="exit_time" property="exitTime"/>
+        <result column="confirm_by" property="confirmBy"/>
+        <result column="confirm_name" property="confirmName"/>
+        <result column="confirm_time" property="confirmTime"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO parking_record (
+            plate_number, vehicle_type, action, status,
+            alarm_id, enter_time, remark,
+            create_time, update_time
+        ) VALUES (
+            #{plateNumber}, #{vehicleType}, #{action}, #{status},
+            #{alarmId}, #{enterTime}, #{remark},
+            NOW(), NOW()
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE parking_record
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="exitTime != null">exit_time = #{exitTime},</if>
+            <if test="confirmBy != null">confirm_by = #{confirmBy},</if>
+            <if test="confirmName != null">confirm_name = #{confirmName},</if>
+            <if test="confirmTime != null">confirm_time = #{confirmTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM parking_record WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM parking_record WHERE id = #{id}
+    </select>
+
+    <select id="selectByPlateNumber" resultMap="BaseResultMap">
+        SELECT * FROM parking_record
+        WHERE plate_number = #{plateNumber}
+        AND action = 'ENTER'
+        ORDER BY enter_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT * FROM parking_record
+        <where>
+            <if test="plateNumber != null and plateNumber != ''">
+                AND plate_number LIKE CONCAT('%', #{plateNumber}, '%')
+            </if>
+            <if test="action != null and action != ''">
+                AND action = #{action}
+            </if>
+        </where>
+        ORDER BY enter_time DESC
+        <if test="limit > 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+</mapper>

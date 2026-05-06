@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fence.mapper.AlarmMapper">
+
+    <resultMap id="BaseResultMap" type="com.fence.entity.Alarm">
+        <id column="id" property="id"/>
+        <result column="alarm_no" property="alarmNo"/>
+        <result column="vehicle_id" property="vehicleId"/>
+        <result column="vehicle_plate" property="vehiclePlate"/>
+        <result column="task_id" property="taskId"/>
+        <result column="alarm_type" property="alarmType"/>
+        <result column="alarm_level" property="alarmLevel"/>
+        <result column="alarm_content" property="alarmContent"/>
+        <result column="longitude" property="longitude"/>
+        <result column="latitude" property="latitude"/>
+        <result column="status" property="status"/>
+        <result column="handle_method" property="handleMethod"/>
+        <result column="handle_remark" property="handleRemark"/>
+        <result column="handler_id" property="handlerId"/>
+        <result column="handler_name" property="handlerName"/>
+        <result column="alarm_time" property="alarmTime"/>
+        <result column="handle_time" property="handleTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO alarm (
+            alarm_no, vehicle_id, vehicle_plate, task_id,
+            alarm_type, alarm_level, alarm_content,
+            longitude, latitude, status,
+            alarm_time, create_time, update_time
+        ) VALUES (
+                     #{alarmNo}, #{vehicleId}, #{vehiclePlate}, #{taskId},
+                     #{alarmType}, #{alarmLevel}, #{alarmContent},
+                     #{longitude}, #{latitude}, #{status},
+                     #{alarmTime}, #{createTime}, #{updateTime}
+                 )
+    </insert>
+
+    <update id="update">
+        UPDATE alarm
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="handleMethod != null">handle_method = #{handleMethod},</if>
+            <if test="handleRemark != null">handle_remark = #{handleRemark},</if>
+            <if test="handlerId != null">handler_id = #{handlerId},</if>
+            <if test="handlerName != null">handler_name = #{handlerName},</if>
+            <if test="handleTime != null">handle_time = #{handleTime},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE alarm
+        SET status = #{status},
+            handle_method = #{handleMethod},
+            handle_remark = #{handleRemark},
+            handler_id = #{handlerId},
+            handler_name = #{handlerName},
+            handle_time = NOW(),
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM alarm WHERE id = #{id}
+    </select>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT * FROM alarm
+        <where>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="alarmType != null and alarmType != ''">
+                AND alarm_type = #{alarmType}
+            </if>
+            <if test="alarmLevel != null and alarmLevel != ''">
+                AND alarm_level = #{alarmLevel}
+            </if>
+            <if test="vehicleId != null">
+                AND vehicle_id = #{vehicleId}
+            </if>
+            <if test="startTime != null">
+                AND alarm_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND alarm_time &lt;= #{endTime}
+            </if>
+        </where>
+        ORDER BY alarm_time DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countByStatus" resultType="int">
+        SELECT COUNT(*) FROM alarm
+        <where>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+    <select id="selectLatestByVehicleAndType" resultMap="BaseResultMap">
+        SELECT * FROM alarm
+        WHERE vehicle_id = #{vehicleId}
+          AND alarm_type = #{alarmType}
+        ORDER BY alarm_time DESC
+            LIMIT 1
+    </select>
+
+    <select id="statisticsByType" resultType="map">
+        SELECT
+            alarm_type AS type,
+            COUNT(*) AS count
+        FROM alarm
+        GROUP BY alarm_type
+    </select>
+
+    <select id="statisticsByLevel" resultType="map">
+        SELECT
+            alarm_level AS level,
+            COUNT(*) AS count
+        FROM alarm
+        GROUP BY alarm_level
+    </select>
+
+</mapper>

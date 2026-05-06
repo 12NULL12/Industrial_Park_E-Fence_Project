@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fence.mapper.VehicleMapper">
+
+    <resultMap id="BaseResultMap" type="com.fence.entity.Vehicle">
+        <id column="id" property="id"/>
+        <result column="plate_number" property="plateNumber"/>
+        <result column="vehicle_type" property="vehicleType"/>
+        <result column="brand" property="brand"/>
+        <result column="model" property="model"/>
+        <result column="color" property="color"/>
+        <result column="load_capacity" property="loadCapacity"/>
+        <result column="status" property="status"/>
+        <result column="device_id" property="deviceId"/>
+        <result column="driver_id" property="driverId"/>
+        <result column="driver_name" property="driverName"/>
+        <result column="current_longitude" property="currentLongitude"/>
+        <result column="current_latitude" property="currentLatitude"/>
+        <result column="last_update_time" property="lastUpdateTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="speed" property="speed" />
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO vehicle (
+            plate_number, vehicle_type, brand, model, color,
+            load_capacity, status, device_id, driver_id,
+            create_time, update_time
+        ) VALUES (
+                     #{plateNumber}, #{vehicleType}, #{brand}, #{model}, #{color},
+                     #{loadCapacity}, #{status}, #{deviceId}, #{driverId},
+                     NOW(), NOW()
+                 )
+    </insert>
+
+    <update id="update">
+        UPDATE vehicle
+        <set>
+            <if test="plateNumber != null">plate_number = #{plateNumber},</if>
+            <if test="vehicleType != null">vehicle_type = #{vehicleType},</if>
+            <if test="brand != null">brand = #{brand},</if>
+            <if test="model != null">model = #{model},</if>
+            <if test="color != null">color = #{color},</if>
+            <if test="loadCapacity != null">load_capacity = #{loadCapacity},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="deviceId != null">device_id = #{deviceId},</if>
+            driver_id = #{driverId},
+            driver_name = #{driverName},
+            <if test="currentLongitude != null">current_longitude = #{currentLongitude},</if>
+            <if test="currentLatitude != null">current_latitude = #{currentLatitude},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM vehicle WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+            v.id,
+            v.plate_number,
+            v.vehicle_type,
+            v.brand,
+            v.model,
+            v.color,
+            v.load_capacity,
+            v.status,
+            v.device_id,
+            v.driver_id,
+            d.name as driver_name,
+            v.current_longitude,
+            v.current_latitude,
+            v.last_update_time,
+            v.create_time,
+            v.update_time,
+            v.speed
+        FROM vehicle v
+        LEFT JOIN driver d ON v.driver_id = d.id
+        WHERE v.id = #{id}
+    </select>
+
+    <select id="selectByPlateNumber" resultMap="BaseResultMap">
+        SELECT
+            v.id,
+            v.plate_number,
+            v.vehicle_type,
+            v.brand,
+            v.model,
+            v.color,
+            v.load_capacity,
+            v.status,
+            v.device_id,
+            v.driver_id,
+            d.name as driver_name,
+            v.current_longitude,
+            v.current_latitude,
+            v.last_update_time,
+            v.create_time,
+            v.update_time,
+            v.speed
+        FROM vehicle v
+        LEFT JOIN driver d ON v.driver_id = d.id
+        WHERE v.plate_number = #{plateNumber}
+    </select>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT
+            v.id,
+            v.plate_number,
+            v.vehicle_type,
+            v.brand,
+            v.model,
+            v.color,
+            v.load_capacity,
+            v.status,
+            v.device_id,
+            v.driver_id,
+            d.name as driver_name,
+            v.current_longitude,
+            v.current_latitude,
+            v.last_update_time,
+            v.create_time,
+            v.update_time,
+            v.speed
+        FROM vehicle v
+        LEFT JOIN driver d ON v.driver_id = d.id
+        <where>
+            <if test="status != null and status != ''">
+                AND v.status = #{status}
+            </if>
+            <if test="plateNumber != null and plateNumber != ''">
+                AND v.plate_number LIKE CONCAT('%', #{plateNumber}, '%')
+            </if>
+            <if test="vehicleType != null and vehicleType != ''">
+                AND v.vehicle_type = #{vehicleType}
+            </if>
+        </where>
+        ORDER BY v.create_time DESC
+    </select>
+
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM vehicle
+        <where>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="plateNumber != null and plateNumber != ''">
+                AND plate_number LIKE CONCAT('%', #{plateNumber}, '%')
+            </if>
+            <if test="vehicleType != null and vehicleType != ''">
+                AND vehicle_type = #{vehicleType}
+            </if>
+        </where>
+    </select>
+
+</mapper>

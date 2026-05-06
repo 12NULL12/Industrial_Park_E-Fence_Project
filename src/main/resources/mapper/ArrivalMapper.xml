@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fence.mapper.ArrivalMapper">
+
+    <resultMap id="BaseResultMap" type="com.fence.entity.ArrivalRecord">
+        <id column="id" property="id"/>
+        <result column="cargo_id" property="cargoId"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="arrival_time" property="arrivalTime"/>
+        <result column="remark" property="remark"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, cargo_id, warehouse_id, arrival_time, remark, created_at
+    </sql>
+
+    <select id="selectByCargoId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM arrival_record
+        WHERE cargo_id = #{cargoId}
+        ORDER BY arrival_time DESC
+    </select>
+
+    <select id="selectByWarehouseId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM arrival_record
+        WHERE warehouse_id = #{warehouseId}
+        ORDER BY arrival_time DESC
+    </select>
+
+    <select id="selectByTimeRange" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM arrival_record
+        WHERE arrival_time BETWEEN #{startTime} AND #{endTime}
+        ORDER BY arrival_time DESC
+    </select>
+
+    <select id="selectLatestByCargoId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM arrival_record
+        WHERE cargo_id = #{cargoId}
+        ORDER BY arrival_time DESC
+        LIMIT 1
+    </select>
+
+</mapper>
