@@ -137,15 +137,27 @@
     </delete>
 
     <select id="selectById" resultMap="TaskResultMap">
-        SELECT * FROM task WHERE id = #{id}
+        SELECT id, task_no, task_name, vehicle_id, vehicle_plate, driver_id, driver_name,
+               start_warehouse_id, start_warehouse_name, end_warehouse_id, end_warehouse_name,
+               status, start_time, end_time, actual_start_time, actual_end_time,
+               remark, priority, create_time, update_time
+        FROM task WHERE id = #{id}
     </select>
 
     <select id="selectByTaskNo" resultMap="TaskResultMap">
-        SELECT * FROM task WHERE task_no = #{taskNo}
+        SELECT id, task_no, task_name, vehicle_id, vehicle_plate, driver_id, driver_name,
+               start_warehouse_id, start_warehouse_name, end_warehouse_id, end_warehouse_name,
+               status, start_time, end_time, actual_start_time, actual_end_time,
+               remark, priority, create_time, update_time
+        FROM task WHERE task_no = #{taskNo}
     </select>
 
     <select id="selectList" resultMap="TaskResultMap">
-        SELECT * FROM task
+        SELECT id, task_no, task_name, vehicle_id, vehicle_plate, driver_id, driver_name,
+               start_warehouse_id, start_warehouse_name, end_warehouse_id, end_warehouse_name,
+               status, start_time, end_time, actual_start_time, actual_end_time,
+               remark, priority, create_time, update_time
+        FROM task
         <where>
             <if test="status != null and status != ''">
                 AND status = #{status}
@@ -180,7 +192,11 @@
     </select>
 
     <select id="selectTimeoutTasks" resultMap="TaskResultMap">
-        SELECT * FROM task
+        SELECT id, task_no, task_name, vehicle_id, vehicle_plate, driver_id, driver_name,
+               start_warehouse_id, start_warehouse_name, end_warehouse_id, end_warehouse_name,
+               status, start_time, end_time, actual_start_time, actual_end_time,
+               remark, priority, create_time, update_time
+        FROM task
         WHERE status IN ('ASSIGNED', 'IN_PROGRESS')
           AND end_time &lt; NOW()
     </select>

@@ -63,11 +63,15 @@
     </delete>
 
     <select id="selectById" resultMap="FenceResultMap">
-        SELECT * FROM fence WHERE id = #{id}
+        SELECT id, fence_name, fence_type, description, alarm_level, enabled,
+               create_time, update_time
+        FROM fence WHERE id = #{id}
     </select>
 
     <select id="selectList" resultMap="FenceResultMap">
-        SELECT * FROM fence
+        SELECT id, fence_name, fence_type, description, alarm_level, enabled,
+               create_time, update_time
+        FROM fence
         <where>
             <if test="fenceType != null and fenceType != ''">
                 AND fence_type = #{fenceType}

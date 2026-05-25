@@ -112,15 +112,30 @@
     </delete>
 
     <select id="selectById" resultMap="BaseResultMap">
-        SELECT * FROM device WHERE id = #{id}
+        SELECT id, device_no, device_type, manufacturer, model, firmware_version,
+               vehicle_id, vehicle_plate, status,
+               last_longitude, last_latitude, last_online_time, last_heartbeat_time,
+               battery_level, sim_card_no, remark,
+               create_time, update_time
+        FROM device WHERE id = #{id}
     </select>
 
     <select id="selectByDeviceNo" resultMap="BaseResultMap">
-        SELECT * FROM device WHERE device_no = #{deviceNo}
+        SELECT id, device_no, device_type, manufacturer, model, firmware_version,
+               vehicle_id, vehicle_plate, status,
+               last_longitude, last_latitude, last_online_time, last_heartbeat_time,
+               battery_level, sim_card_no, remark,
+               create_time, update_time
+        FROM device WHERE device_no = #{deviceNo}
     </select>
 
     <select id="selectList" resultMap="BaseResultMap">
-        SELECT * FROM device
+        SELECT id, device_no, device_type, manufacturer, model, firmware_version,
+               vehicle_id, vehicle_plate, status,
+               last_longitude, last_latitude, last_online_time, last_heartbeat_time,
+               battery_level, sim_card_no, remark,
+               create_time, update_time
+        FROM device
         <where>
             <if test="status != null and status != ''">
                 AND status = #{status}
@@ -149,13 +164,23 @@
     </select>
 
     <select id="selectOfflineDevices" resultMap="BaseResultMap">
-        SELECT * FROM device
+        SELECT id, device_no, device_type, manufacturer, model, firmware_version,
+               vehicle_id, vehicle_plate, status,
+               last_longitude, last_latitude, last_online_time, last_heartbeat_time,
+               battery_level, sim_card_no, remark,
+               create_time, update_time
+        FROM device
         WHERE status = 'OFFLINE'
           AND last_heartbeat_time &lt; DATE_SUB(NOW(), INTERVAL 10 MINUTE)
     </select>
 
     <select id="selectFaultDevices" resultMap="BaseResultMap">
-        SELECT * FROM device WHERE status = 'FAULT'
+        SELECT id, device_no, device_type, manufacturer, model, firmware_version,
+               vehicle_id, vehicle_plate, status,
+               last_longitude, last_latitude, last_online_time, last_heartbeat_time,
+               battery_level, sim_card_no, remark,
+               create_time, update_time
+        FROM device WHERE status = 'FAULT'
     </select>
 
 </mapper>

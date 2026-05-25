@@ -66,11 +66,21 @@
     </update>
 
     <select id="selectById" resultMap="BaseResultMap">
-        SELECT * FROM alarm WHERE id = #{id}
+        SELECT id, alarm_no, vehicle_id, vehicle_plate, task_id,
+               alarm_type, alarm_level, alarm_content,
+               longitude, latitude, status,
+               handle_method, handle_remark, handler_id, handler_name,
+               alarm_time, handle_time, create_time, update_time
+        FROM alarm WHERE id = #{id}
     </select>
 
     <select id="selectList" resultMap="BaseResultMap">
-        SELECT * FROM alarm
+        SELECT id, alarm_no, vehicle_id, vehicle_plate, task_id,
+               alarm_type, alarm_level, alarm_content,
+               longitude, latitude, status,
+               handle_method, handle_remark, handler_id, handler_name,
+               alarm_time, handle_time, create_time, update_time
+        FROM alarm
         <where>
             <if test="status != null and status != ''">
                 AND status = #{status}
@@ -104,11 +114,16 @@
         </where>
     </select>
     <select id="selectLatestByVehicleAndType" resultMap="BaseResultMap">
-        SELECT * FROM alarm
+        SELECT id, alarm_no, vehicle_id, vehicle_plate, task_id,
+               alarm_type, alarm_level, alarm_content,
+               longitude, latitude, status,
+               handle_method, handle_remark, handler_id, handler_name,
+               alarm_time, handle_time, create_time, update_time
+        FROM alarm
         WHERE vehicle_id = #{vehicleId}
           AND alarm_type = #{alarmType}
         ORDER BY alarm_time DESC
-            LIMIT 1
+        LIMIT 1
     </select>
 
     <select id="statisticsByType" resultType="map">

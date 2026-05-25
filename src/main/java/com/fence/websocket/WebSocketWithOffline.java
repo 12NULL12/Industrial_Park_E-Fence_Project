@@ -1,6 +1,6 @@
 package com.fence.websocket;
 //wzj
-import com.fence.service.OfflineMessageQueue;
+import com.fence.service.OfflineMessageStreamQueue;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
@@ -27,10 +27,10 @@ public class WebSocketWithOffline {
     private static Map<String, Session> onlineUsers = new ConcurrentHashMap<>();
 
     // 注入会失效，用其他方式
-    private static OfflineMessageQueue offlineMessageQueue;
+    private static OfflineMessageStreamQueue offlineMessageQueue;
 
     @Autowired
-    public void setOfflineMessageQueue(OfflineMessageQueue queue) {
+    public void setOfflineMessageQueue(OfflineMessageStreamQueue queue) {
         WebSocketWithOffline.offlineMessageQueue = queue;
     }
 
